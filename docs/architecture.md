@@ -21,9 +21,9 @@
 ## Banner grabbing strategy
 
 Two-phase read per open port:
-1. Listen briefly (0.3s) — protocols that speak first (SSH, FTP, SMTP) reveal
+1. Listen briefly (0.3s): protocols that speak first (SSH, FTP, SMTP) reveal
    themselves immediately.
-2. If silent, send a benign `HEAD / HTTP/1.0` probe and read again — HTTP and
+2. If silent, send a benign `HEAD / HTTP/1.0` probe and read again: HTTP and
    most web servers answer with a status line + Server header.
 
 Banners give a *fingerprint*, not just a port-number guess: the same port 8080
@@ -32,18 +32,18 @@ can be a printer, Jenkins, or a camera, and the banner usually tells you which.
 ## Target validation (defense in depth, in code)
 
 - Hostnames are resolved **once** (`gethostbyname`) and the *resolved IP* is
-  what gets scope-checked — a DNS name can't smuggle a public target past the
+  what gets scope-checked: a DNS name can't smuggle a public target past the
   private-only default.
 - Scope check uses the `ipaddress` module (`is_loopback` / `is_private`), not
   string matching on prefixes.
 
 ## Output formats
 
-- **CSV** — for spreadsheets, ticketing systems, quick diffs between runs.
-- **JSON with a `meta` block** — scan parameters + timestamp, so a result file
+- **CSV**: for spreadsheets, ticketing systems, quick diffs between runs.
+- **JSON with a `meta` block**: scan parameters + timestamp, so a result file
   is self-describing months later in an audit trail.
 
-## Known limits (honest)
+## Known limits
 
 - No UDP scanning, no OS fingerprinting, no version detection beyond banners.
 - Accuracy on high-latency WAN targets depends on `--timeout`; the defaults

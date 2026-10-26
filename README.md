@@ -1,7 +1,7 @@
-# Python Port Scanner — Threaded TCP Scanner with Banner Grabbing
+# Python Port Scanner: Threaded TCP Scanner with Banner Grabbing
 
 A real, working network reconnaissance tool written from scratch in pure
-Python (standard library only — no pip installs). TCP connect scanning with
+Python (standard library only: no pip installs). TCP connect scanning with
 configurable threads/timeout, service banner grabbing, and CSV + JSON output.
 
 **What this demonstrates:** Python socket programming, concurrency with
@@ -34,7 +34,7 @@ scanner **refuses public targets by default** (see Scope & ethics).
 ## Quick start
 
 ```bash
-# Scan localhost (allowed by default — it's yours)
+# Scan localhost (allowed by default - it's yours)
 python3 scripts/portscan.py 127.0.0.1 --ports 1-1024
 
 # Scan your private network segment
@@ -59,28 +59,28 @@ just docs:
 ## Security notes
 
 - TCP *connect* scan: full handshakes, visible in target logs. There is no
-  stealth mode and there shouldn't be — this is an inventory/audit tool.
+  stealth mode and there shouldn't be: this is an inventory/audit tool.
 - Banners are truncated to 200 chars in output; no payloads beyond benign
-  service-specific probes (an HTTP `HEAD /`, the RDP X.224 request — see v2).
+  service-specific probes (an HTTP `HEAD /`, the RDP X.224 request: see v2).
 
 ## What's new in v2
 
 Multi-target scanning, a self-contained HTML report, and a proper banner
-fingerprint table — all still standard library only.
+fingerprint table: all still standard library only.
 
 - **CIDR + multi-target support.** The target argument now accepts a subnet
   (`127.0.0.0/30`), comma-separated hosts (`10.0.0.1,10.0.0.5`), or a mix.
   Every address in a small CIDR block is expanded (a hard cap of
   `MAX_TARGETS = 1024` stops a `/8` typo from queueing millions of hosts).
 - **Guard applies to every target.** `disallowed_targets()` checks the *whole*
-  resolved set: one public IP in the mix refuses the entire run in the default private-only scope —
+  resolved set: one public IP in the mix refuses the entire run in the default private-only scope,
   verified by tests at both the function and `main()` level.
 - **HTML report output.** `--format csv,json,html` (or just `--html`) writes a
   self-contained `<prefix>.html`: inline CSS only, no external assets, a scope
   badge, a summary block (targets, ports, scope, timing) and a results table.
 - **Service fingerprinting.** `BANNER_SIGNATURES` is an ordered table of regex
   rules over the banner text (SSH, HTTP, SMTP vs FTP greeting disambiguation,
-  MySQL/MariaDB, POP3/IMAP, RDP TPKT header) — the label now comes from what
+  MySQL/MariaDB, POP3/IMAP, RDP TPKT header): the label now comes from what
   the service *says*, falling back to the old port-number hint (`SERVICE_HINTS`)
   when the banner is silent or ambiguous. `SERVICE_PROBES` picks the probe per
   port: chatty services are just listened to; silent HTTP gets the HEAD probe;
@@ -138,31 +138,31 @@ test_guard_rejects_set_with_any_public (test_portscan.TestTargetSetGuard.test_gu
 test_main_cidr_set_refuses_public (test_portscan.TestTargetSetGuard.test_main_cidr_set_refuses_public) ... ok
 test_main_refuses_whole_run_on_one_public (test_portscan.TestTargetSetGuard.test_main_refuses_whole_run_on_one_public) ... ok
 
-Ran 35 tests in 0.313s — OK
+Ran 35 tests in 0.313s - OK
 ```
 
 (Note: two guard tests print the expected `error: refusing to scan ...` lines
-to stderr mid-run — that's the test asserting `main()` exits 2 on a public
+to stderr mid-run. That's the test asserting `main()` exits 2 on a public
 target, exactly the behavior being verified.)
 
-Live validation — CIDR scan of `127.0.0.0/30` against a real localhost
+Live validation: CIDR scan of `127.0.0.0/30` against a real localhost
 HTTP listener (`python3 -m http.server 8080 --bind 127.0.0.1`), exercising
 expansion + HTML + fingerprinting in one run. Note 8080 is now labeled `http`
 from its banner (in v1 it would have been the `http-alt` port-number guess):
 
 ```
 $ python3 scripts/portscan.py 127.0.0.0/30 --ports 8080 --format csv,json,html --output validation-v2/scan
-[*] scanning 127.0.0.0/30 (4 targets) — 1 port(s)/target, 100 threads
-[+] 127.0.0.1:  8080/tcp open  http — HTTP/1.0 200 OK
+[*] scanning 127.0.0.0/30 (4 targets) - 1 port(s)/target, 100 threads
+[+] 127.0.0.1:  8080/tcp open  http - HTTP/1.0 200 OK
 [*] 1 open port(s) across 4 target(s) in 0.3s → validation-v2/scan.csv / validation-v2/scan.json / validation-v2/scan.html
 ```
 
-The generated `validation-v2/scan.html` is a single self-contained file —
-`<title>Port scan report — 127.0.0.0/30 (private scope)</title>`, the summary block and
+The generated `validation-v2/scan.html` is a single self-contained file:
+`<title>Port scan report - 127.0.0.0/30 (private scope)</title>`, the summary block and
 result row both contain the scanned target(s), and `grep` for external
 asset references (`src="http` / `href="http`) found zero matches.
 
-Scope guard on a mixed target set — one public IP refuses the whole run:
+Scope guard on a mixed target set: one public IP refuses the whole run:
 
 ```
 $ python3 scripts/portscan.py 127.0.0.1,8.8.8.8 --ports 53    (exit code 2)
@@ -176,7 +176,7 @@ because some DNS resolvers answer for any well-formed hostname.
 
 ## Test results
 
-Unit tests — 11/11 passing:
+Unit tests: 11/11 passing:
 
 ```
 $ python3 -m unittest discover -s tests -v
@@ -191,7 +191,7 @@ test_private_allows_loopback_and_private ... ok
 test_private_refuses_public ... ok
 test_own_scope_allows_public ... ok
 
-Ran 11 tests in 0.309s — OK
+Ran 11 tests in 0.309s - OK
 ```
 
 Live scan against two real localhost listeners (a fake SSH banner server on
@@ -199,13 +199,13 @@ Live scan against two real localhost listeners (a fake SSH banner server on
 
 ```
 $ python3 scripts/portscan.py 127.0.0.1 --ports 2222,8080
-[*] scanning 127.0.0.1 (127.0.0.1) — 2 ports, 100 threads
-[+]  2222/tcp open   — SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13
-[+]  8080/tcp open  http-alt — HTTP/1.0 200 OK
+[*] scanning 127.0.0.1 (127.0.0.1) - 2 ports, 100 threads
+[+]  2222/tcp open   - SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13
+[+]  8080/tcp open  http-alt - HTTP/1.0 200 OK
 [*] 2 open port(s) in 0.3s → scan.csv / scan.json
 ```
 
-Scope guard verified — public target refused by default:
+Scope guard verified: public target refused by default:
 
 ```
 $ python3 scripts/portscan.py 8.8.8.8 --ports 53    (exit code 2)
